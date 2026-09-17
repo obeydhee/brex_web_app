@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 public class Item {
@@ -21,6 +22,10 @@ public class Item {
 
     private String description;
 
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private int quantity = 0;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -28,8 +33,13 @@ public class Item {
     }
 
     public Item(String name, String description) {
+        this(name, description, 0);
+    }
+
+    public Item(String name, String description, int quantity) {
         this.name = name;
         this.description = description;
+        this.quantity = quantity;
     }
 
     public Long getId() {
@@ -54,6 +64,14 @@ public class Item {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public Instant getCreatedAt() {

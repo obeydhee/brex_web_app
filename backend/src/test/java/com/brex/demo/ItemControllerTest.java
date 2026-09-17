@@ -47,7 +47,17 @@ class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Test Item\",\"description\":\"created in test\"}"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Test Item"));
+                .andExpect(jsonPath("$.name").value("Test Item"))
+                .andExpect(jsonPath("$.quantity").value(0));
+    }
+
+    @Test
+    void createItemWithQuantityPersistsIt() throws Exception {
+        mockMvc.perform(post("/api/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Stocked Item\",\"description\":\"has stock\",\"quantity\":5}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.quantity").value(5));
     }
 
     @Test
@@ -55,6 +65,14 @@ class ItemControllerTest {
         mockMvc.perform(post("/api/items")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"description\":\"no name\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createItemWithNegativeQuantityIsRejected() throws Exception {
+        mockMvc.perform(post("/api/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Bad Item\",\"quantity\":-1}"))
                 .andExpect(status().isBadRequest());
     }
 }

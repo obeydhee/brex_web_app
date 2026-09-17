@@ -39,6 +39,11 @@ h1 {
   font-size: 1rem;
 }
 
+.item-form input[type='number'] {
+  flex: 0 0 90px;
+  min-width: 0;
+}
+
 .item-form button {
   padding: 0.5rem 1rem;
   border: none;
@@ -79,6 +84,15 @@ h1 {
   margin: 0.25rem 0 0;
   color: #666;
   font-size: 0.9rem;
+}
+
+.quantity-badge {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  color: #444;
+  background: #eee;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
 }
 
 .item-list button {

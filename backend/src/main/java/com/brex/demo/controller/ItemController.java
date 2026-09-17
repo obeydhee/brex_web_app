@@ -4,6 +4,7 @@ import com.brex.demo.model.Item;
 import com.brex.demo.repository.ItemRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,7 +41,8 @@ public class ItemController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Item createItem(@Valid @RequestBody CreateItemRequest request) {
-        Item item = new Item(request.name(), request.description());
+        int quantity = request.quantity() != null ? request.quantity() : 0;
+        Item item = new Item(request.name(), request.description(), quantity);
         return itemRepository.save(item);
     }
 
@@ -53,6 +55,6 @@ public class ItemController {
         itemRepository.deleteById(id);
     }
 
-    public record CreateItemRequest(@NotBlank String name, String description) {
+    public record CreateItemRequest(@NotBlank String name, String description, @PositiveOrZero Integer quantity) {
     }
 }

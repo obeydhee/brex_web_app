@@ -5,6 +5,7 @@ export default function App() {
   const [items, setItems] = useState([])
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [quantity, setQuantity] = useState('0')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -24,9 +25,10 @@ export default function App() {
     event.preventDefault()
     if (!name.trim()) return
     try {
-      await createItem({ name, description })
+      await createItem({ name, description, quantity: Number(quantity) || 0 })
       setName('')
       setDescription('')
+      setQuantity('0')
       loadItems()
     } catch (err) {
       setError(err.message)
@@ -61,6 +63,13 @@ export default function App() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+        <input
+          type="number"
+          min="0"
+          placeholder="Quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+        />
         <button type="submit">Add item</button>
       </form>
 
@@ -72,6 +81,7 @@ export default function App() {
           <li key={item.id}>
             <div>
               <strong>{item.name}</strong>
+              <span className="quantity-badge">Qty: {item.quantity}</span>
               {item.description && <p>{item.description}</p>}
             </div>
             <button onClick={() => handleDelete(item.id)}>Delete</button>

@@ -67,6 +67,15 @@ npm run dev
 Open `http://localhost:5173` — you'll see the seeded items, and can add or
 delete items through the form, which round-trips to the SQLite database.
 
+> **Note:** `SQLITE_DB_PATH` defaults to the relative path `./data/app.db`,
+> which is resolved against whatever directory you *launch* the process
+> from — `./gradlew :backend:bootRun` runs with `backend/` as the working
+> directory, so the file lands at `backend/data/app.db`. If you instead run
+> the packaged jar directly (`java -jar backend/build/libs/*.jar`) from the
+> repo root, the file lands at `<repo root>/data/app.db` instead. Either
+> `cd backend` first, or set `SQLITE_DB_PATH` explicitly, to control where
+> it goes.
+
 ### Running the production build
 
 After `./gradlew build`, you can also serve the static frontend bundle from
@@ -80,7 +89,7 @@ if the frontend isn't on `localhost:5173`).
 |--------|-------------------|-----------------------|
 | GET    | `/api/items`      | List all items        |
 | GET    | `/api/items/{id}` | Get one item          |
-| POST   | `/api/items`      | Create an item (`{"name": "...", "description": "..."}`) |
+| POST   | `/api/items`      | Create an item (`{"name": "...", "description": "...", "quantity": 0}`; `quantity` defaults to `0` if omitted) |
 | DELETE | `/api/items/{id}` | Delete an item         |
 
 ## Configuration
