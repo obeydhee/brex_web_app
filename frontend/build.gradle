@@ -1,0 +1,27 @@
+plugins {
+    id 'com.github.node-gradle.node' version '7.0.2'
+}
+
+node {
+    version = '22.22.2'
+    npmVersion = '10.9.7'
+    download = false
+    nodeProjectDir = file(project.projectDir)
+}
+
+tasks.register('build') {
+    group = 'build'
+    description = 'Installs npm dependencies and builds the production React bundle.'
+    dependsOn 'npm_run_build'
+}
+
+tasks.named('npm_run_build') {
+    dependsOn 'npmInstall'
+    inputs.dir('src')
+    inputs.files('package.json', 'package-lock.json', 'vite.config.js', 'index.html')
+    outputs.dir('dist')
+}
+
+tasks.register('clean', Delete) {
+    delete 'dist'
+}
