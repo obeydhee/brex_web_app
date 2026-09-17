@@ -1,0 +1,12 @@
+// Root build: aggregates the Spring Boot backend and the React frontend
+// so the whole stack can be built with a single `./gradlew build`.
+
+task buildAll {
+    group = 'build'
+    description = 'Builds the backend jar and the frontend production bundle.'
+    dependsOn ':backend:build', ':frontend:build'
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
