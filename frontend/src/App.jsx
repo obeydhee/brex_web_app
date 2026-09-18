@@ -1,93 +1,70 @@
-import { useEffect, useState } from 'react'
-import { fetchItems, createItem, deleteItem } from './api'
+import { useState } from 'react'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import LoginView from './views/LoginView'
+import SignupView from './views/SignupView'
+import DashboardView from './views/DashboardView'
+import SendPaymentView from './views/SendPaymentView'
+import HistoryView from './views/HistoryView'
 
-export default function App() {
-  const [items, setItems] = useState([])
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [quantity, setQuantity] = useState('0')
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(true)
+const VIEWS = [
+  { value: 'dashboard', label: 'Dashboard' },
+  { value: 'send', label: 'Send' },
+  { value: 'history', label: 'History' },
+]
 
-  function loadItems() {
-    setLoading(true)
-    fetchItems()
-      .then(setItems)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    loadItems()
-  }, [])
-
-  async function handleSubmit(event) {
-    event.preventDefault()
-    if (!name.trim()) return
-    try {
-      await createItem({ name, description, quantity: Number(quantity) || 0 })
-      setName('')
-      setDescription('')
-      setQuantity('0')
-      loadItems()
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
-  async function handleDelete(id) {
-    try {
-      await deleteItem(id)
-      loadItems()
-    } catch (err) {
-      setError(err.message)
-    }
-  }
+function AuthenticatedApp() {
+  const { profile, logout } = useAuth()
+  const [view, setView] = useState('dashboard')
 
   return (
-    <main className="app">
-      <h1>Brex Demo App</h1>
-      <p className="subtitle">React frontend &rarr; Spring Boot API &rarr; SQLite database</p>
+    <div className="app">
+      <header className="app-header">
+        <h1>Brex Pay</h1>
+        <nav className="app-nav">
+          {VIEWS.map((v) => (
+            <button key={v.value} className={v.value === view ? 'active' : ''} onClick={() => setView(v.value)}>
+              {v.label}
+            </button>
+          ))}
+        </nav>
+        <div className="app-user">
+          <span>@{profile.paymentName}</span>
+          <button onClick={logout}>Log out</button>
+        </div>
+      </header>
+      <main className="app-main">
+        {view === 'dashboard' && <DashboardView />}
+        {view === 'send' && <SendPaymentView />}
+        {view === 'history' && <HistoryView />}
+      </main>
+    </div>
+  )
+}
 
-      <form className="item-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Item name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <input
-          type="number"
-          min="0"
-          placeholder="Quantity"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-        />
-        <button type="submit">Add item</button>
-      </form>
+function UnauthenticatedApp() {
+  const [mode, setMode] = useState('login')
 
-      {error && <p className="error">Error: {error}</p>}
-      {loading && <p>Loading...</p>}
+  return (
+    <div className="app app-unauth">
+      <h1>Brex Pay</h1>
+      {mode === 'login' ? (
+        <LoginView onSwitchToSignup={() => setMode('signup')} />
+      ) : (
+        <SignupView onSwitchToLogin={() => setMode('login')} />
+      )}
+    </div>
+  )
+}
 
-      <ul className="item-list">
-        {items.map((item) => (
-          <li key={item.id}>
-            <div>
-              <strong>{item.name}</strong>
-              <span className="quantity-badge">Qty: {item.quantity}</span>
-              {item.description && <p>{item.description}</p>}
-            </div>
-            <button onClick={() => handleDelete(item.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-    </main>
+function Shell() {
+  const { token } = useAuth()
+  return token ? <AuthenticatedApp /> : <UnauthenticatedApp />
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Shell />
+    </AuthProvider>
   )
 }

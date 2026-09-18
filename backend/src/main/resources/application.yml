@@ -13,7 +13,20 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+  error:
+    # Spring Boot omits the exception message from error responses by
+    # default. ResponseStatusException(..., "reason") is this codebase's only
+    # error-handling idiom, and the frontend surfaces that reason directly
+    # (falling back to a generic message otherwise) — so it needs to always
+    # be present in the JSON body.
+    include-message: always
 
 app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  jwt:
+    # Dev-only default secret. Override with a strong, random value (32+ bytes,
+    # base64 or plain) via the JWT_SECRET env var before running anywhere
+    # other than local development.
+    secret: ${JWT_SECRET:dev-only-insecure-secret-change-me-before-any-real-deployment}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:1440}
